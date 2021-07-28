@@ -435,64 +435,11 @@ public class ModuleS3Upload extends ModuleBase
 				}
 			}
 
-			AmazonS3 s3Client = null;
-			AmazonS3ClientBuilder builder = AmazonS3ClientBuilder.standard();
-			Regions region = null;
-			try
-			{
-				region = Regions.fromName(regionName);
-			}
-			catch (IllegalArgumentException e)
-			{
-				if (useDefaultRegion)
-				{
-					region = Regions.getCurrentRegion() != null ? Regions.fromName(Regions.getCurrentRegion().getName()) : Regions.DEFAULT_REGION;
-					// set the regionName to the default region. Used in the bucket check later.
-					if (region != null)
-						regionName = region.getName();
-				}
-			}
-			finally
-			{
-				if (region != null)
-				{
-					builder.withRegion(region);
-					if (allowBucketRegionOverride)
-					{
-						builder.withForceGlobalBucketAccessEnabled(true);
-					}
-				}
-			}
-			AWSCredentialsProvider credentialsProvider = null;
-
-			// backwards compatibility
-			if (!StringUtils.isEmpty(accessKey) && !StringUtils.isEmpty(secretKey))
-			{
-				logger.info(MODULE_NAME + ".onAppStart: [" + appInstance.getContextStr() + "] using supplied aws credentials", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
-				credentialsProvider = new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey));
-			}
-			else if (!StringUtils.isEmpty(awsProfile))
-			{
-				logger.info(MODULE_NAME + ".onAppStart: [" + appInstance.getContextStr() + "] using aws profile: " + awsProfile, WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
-				if (StringUtils.isEmpty(awsProfilePath))
-				{
-					credentialsProvider = new ProfileCredentialsProvider(awsProfile);
-				}
-				else
-				{
-					credentialsProvider = new ProfileCredentialsProvider(awsProfilePath, awsProfile);
-				}
-			}
-			else
-			{
-				logger.info(MODULE_NAME + ".onAppStart: [" + appInstance.getContextStr() + "] using default aws credentials provider chain", WMSLoggerIDs.CAT_application, WMSLoggerIDs.EVT_comment);
-
-			}
-
-			if (credentialsProvider != null)
-				builder.withCredentials(credentialsProvider);
-
-			s3Client = builder.build();
+			AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+        			.withEndpointConfiguration(
+            				new AwsClientBuilder.EndpointConfiguration("https://storage.googleapis.com", "auto"))
+        				.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey))
+        				.build();
 
 			if (checkBucket)
 			{
