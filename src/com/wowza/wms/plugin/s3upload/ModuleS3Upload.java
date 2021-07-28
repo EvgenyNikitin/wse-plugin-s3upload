@@ -438,7 +438,7 @@ public class ModuleS3Upload extends ModuleBase
 			AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
         			.withEndpointConfiguration(
             				new AwsClientBuilder.EndpointConfiguration("https://storage.googleapis.com", "auto"))
-        				.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey))
+        				.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
         				.build();
 
 			if (checkBucket)
